@@ -1,0 +1,16 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore nodejs setting
+/.vscode
+
+# Ignore .env
+.env
+*.env
+
+# Ignore build output
+build/
+
+# Ignore specific files
+dist/bundle.js
+public/index.html
