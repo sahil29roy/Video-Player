@@ -1,2 +1,2 @@
 
-export const DB_NAME ="videoPlayer" ;
+export const DB_NAME ="videoPlayer" ; 
