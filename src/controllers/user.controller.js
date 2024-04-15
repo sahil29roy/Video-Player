@@ -21,14 +21,14 @@ const registerUser = asyncHandler(
 
         // validation
         if([fullName,username,email,password].some((feild)=> feild?.trim()==="")){
-            throw new ApiError(200,"All fields are required");
+            throw new ApiError(400,"All fields are required");
         }
         // check if user already exists
         const existedUser = await User.findOne({
             $or: [{username},{email}]
         })
         if(existedUser){
-            throw new ApiError(200,"Username allready exist!")
+            throw new ApiError(400,"Username allready exist!")
         }
 
         //upload avtar and cover with validation
@@ -42,7 +42,7 @@ const registerUser = asyncHandler(
         }
 
         if(!avatarLocalPath){
-            throw new ApiError(200,"Avatar file is required ");
+            throw new ApiError(400,"Avatar file is required ");
         }
 
         const avatar = await uploadOnCloudinary(avatarLocalPath);
@@ -50,7 +50,7 @@ const registerUser = asyncHandler(
         const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
         if(!avatar){
-            throw new ApiError(200,"Avatar file is Required!");
+            throw new ApiError(400,"Avatar file is Required!");
         }
 
         //create db call
@@ -59,6 +59,7 @@ const registerUser = asyncHandler(
             fullName,
             username : username.toLowerCase(),
             email,
+            password,
             avatar : avatar.url,
             coverImage : coverImage?.url || ""
         })
@@ -68,7 +69,7 @@ const registerUser = asyncHandler(
         )
 
         if(!createdUser){
-            throw new ApiError(200,"Something wet wrong while registering user ")
+            throw new ApiError(400,"Something wet wrong while registering user ")
         }
 
         return res.status(201).json(
