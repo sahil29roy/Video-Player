@@ -9,7 +9,7 @@ const generateAccessAndRefreshToken = async(userId)=>{
     try {
         const user = await findById(userId);
 
-        const accessToken = user.generateAccessToken();
+        const accessToken = user.generateAccessToken(); 
 
         const refreshToken = user.generateRefreshToken();
 
