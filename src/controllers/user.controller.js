@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken"
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
-        const user = await findById(userId);
+        const user = await User.findById(userId);
 
         const accessToken = user.generateAccessToken();
 
@@ -21,7 +21,7 @@ const generateAccessAndRefreshToken = async (userId) => {
     }
 }
 
-const option = {
+const options = {
     httpOnly: true,
     secure: true
 }
@@ -121,19 +121,20 @@ const loginUser = asyncHandler(
 
         const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
-        res.return
-            .status(200)
-            .cookie("accessToken", accessToken, option)
-            .cookie("refreshToken", refreshToken, option)
-            .json(
-                new ApiError(
-                    200,
-                    {
-                        user: loggedInUser, accessToken, refreshToken
-                    },
-                    "User Logged in successfully"
-                )
+        
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200, 
+                {
+                    user: loggedInUser, accessToken, refreshToken
+                },
+                "User logged In Successfully"
             )
+        )
 
     }
 )
@@ -152,8 +153,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     return res
     .status(200)
-    .cookie.clear("accessToken",option)
-    .cookie.clear("refreshToken",option)
+    .cookie.clear("accessToken",options)
+    .cookie.clear("refreshToken",options)
     .json(
         new ApiResponse(200,{},"User Logged out ")
     )
