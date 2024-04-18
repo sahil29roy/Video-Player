@@ -181,6 +181,35 @@ const changePassword = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
+const refreshAccessToken = asyncHandler ( async(req,res)=>{
+
+    try {
+        const incomingRefreshToken = req.cookies?.refreshToken || req.header("Authorization")?.replace("Bearer ","")
+
+        if(!incomingRefreshToken){
+            throw new ApiError(401,"Unauthorised request!");
+        }
+        const decodedToken = jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
+
+        const user = await User.findById(decodedToken?._id);
+
+        if(!user){
+            throw new ApiError(401,"Invalid refresh token!")
+        }
+        if(incomingRefreshToken !== user?.refreshToken){
+            throw new ApiError(401,"Refresh token is expired or used!")
+        }
+        const accessToken = user.generateAccessToken();
+
+        return res.status(200)
+        .cookie("accessToken",accessToken,options)
+        .json(200,accessToken,"Access Token is refreshed ");
+
+    } catch (error) {
+        throw new ApiError(400,error?.message || "Invalid refresh token!")
+    }
+})
+
 export {
     registerUser,
     loginUser,
