@@ -216,9 +216,9 @@ const changeFullName = asyncHandler(async(req,res)=>{
 
     const user = await User.findById(req.user?._id)
 
-    if (!fullName || fullName === "" || fullName === null || fullName === isNaN(fullName) || fullName === undefined) {
-        throw new ApiError(400, "fullName is required!")
-    }
+    if (!fullName || typeof fullName !== "string") {
+        throw new ApiError(400, "fullName is required and must be a valid string!");
+      }
 
     user.fullName = fullName
     await user.save({validateBeforeSave: false})
