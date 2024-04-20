@@ -210,6 +210,24 @@ const refreshAccessToken = asyncHandler ( async(req,res)=>{
     }
 })
 
+const changeFullName = asyncHandler(async(req,res)=>{
+
+    const {fullName} = req.body
+
+    const user = await User.findById(req.user?._id)
+
+    if (!fullName || fullName === "" || fullName === null || fullName === isNaN(fullName) || fullName === undefined) {
+        throw new ApiError(400, "fullName is required!")
+    }
+
+    user.fullName = fullName
+    await user.save({validateBeforeSave: false})
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {fullName}, "fullName changed successfully"))
+})
+
 export {
     registerUser,
     loginUser,
