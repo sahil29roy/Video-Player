@@ -232,5 +232,7 @@ export {
     registerUser,
     loginUser,
     logoutUser,
-    changePassword
+    changePassword,
+    changeFullName,
+    refreshAccessToken
 };
