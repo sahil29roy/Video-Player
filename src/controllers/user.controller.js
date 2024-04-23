@@ -246,6 +246,28 @@ const changeEmail = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, {email}, "email changed successfully"))
 })
 
+const updateAvatar = asyncHandler(async(req,res)=>{
+     const avatarLocalPath = req.file?.path
+
+     if(!avatarLocalPath){
+        throw new ApiError(400, "No file uploaded!")
+     }
+
+     if(!avatar.url){
+        throw new ApiError(400,"Error while uploading avatar");
+     }
+
+     const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $Set : {
+                avatar : avatar.url
+            }
+        },
+        {new : true}
+     ).select("-password")
+})
+
 export {
     registerUser,
     loginUser,
