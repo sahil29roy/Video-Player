@@ -228,11 +228,30 @@ const changeFullName = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, {fullName}, "fullName changed successfully"))
 })
 
+const changeEmail = asyncHandler(async(req,res)=>{
+
+    const {email} = req.body
+
+    const user = await User.findById(req.user?._id)
+
+    if (!email || typeof email !== "string") {
+        throw new ApiError(400, "email is required and must be a valid string!");
+      }
+
+    user.email = email
+    await user.save({validateBeforeSave: false})
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {email}, "email changed successfully"))
+})
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     changePassword,
     changeFullName,
-    refreshAccessToken
+    refreshAccessToken,
+    changeEmail,
 };
