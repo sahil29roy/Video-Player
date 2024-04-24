@@ -33,7 +33,7 @@ const registerUser = asyncHandler(
         const { fullName, username, email, password } = req.body;
         console.log("password : ", password)
         // validation
-        if ([fullName, username, email, password].some((feild) => feild?.trim() === "")) {
+        if ([fullName, username, email, password].some((field) => field?.trim() === "")) {
             throw new ApiError(400, "All fields are required");
         }
         // check if user already exists
@@ -247,11 +247,12 @@ const changeEmail = asyncHandler(async(req,res)=>{
 })
 
 const updateAvatar = asyncHandler(async(req,res)=>{
-     const avatarLocalPath = req.file?.path
+     const avatarLocalPath = req.file?.avatar[0]?.path
 
      if(!avatarLocalPath){
         throw new ApiError(400, "No file uploaded!")
      }
+     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
      if(!avatar.url){
         throw new ApiError(400,"Error while uploading avatar");
@@ -266,7 +267,38 @@ const updateAvatar = asyncHandler(async(req,res)=>{
         },
         {new : true}
      ).select("-password")
+
+     return res.status(200)
+     .json(new ApiResponse(200,user,"Avatar changed sucessfully"));
 })
+
+const changeCoverImage = asyncHandler(async(req,res)=>{
+    const coverImageLocalPath = req.file?.coverImage[0]?.path
+
+    if(!coverImageLocalPath){
+        throw new ApiError(400,"No file Uploaded!")
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if(!coverImage){
+        throw new ApiError(400,"Error while uploading coverImage")
+    }
+
+    const user = User.findByIdAndUpdate(
+        user?._id,
+        {
+            $Set : {
+                coverImage : coverImage.url
+            }
+        }
+        ,{new : true}
+    )
+    return res
+    .status(200)
+    .json(200,user,"CoverImage changed sucessfully")
+})
+
 
 export {
     registerUser,
