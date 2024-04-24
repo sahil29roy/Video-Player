@@ -308,4 +308,6 @@ export {
     changeFullName,
     refreshAccessToken,
     changeEmail,
+    updateAvatar,
+    changeCoverImage
 };
