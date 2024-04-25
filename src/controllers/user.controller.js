@@ -299,7 +299,74 @@ const changeCoverImage = asyncHandler(async(req,res)=>{
     .json(200,user,"CoverImage changed sucessfully")
 })
 
+const getUserChannelProfile = asyncHandler( (req,res)=>{
+    const {username} = req.params
+    if(!username?.trim()){
+        throw new ApiError(400, " username is missing!")
+    }
 
+    const channel = await User.aggregate([
+        {
+            $match : {
+                username : username?.toLowerCase()
+            }
+        },
+        {
+            $lookup : {
+                from : "subscriptions",
+                localField : "_id",
+                forignField : "channel",
+                as : "subscribers"
+            }
+        },
+        {
+            $lookup : {
+                from : "subscriptions",
+                localField : "_id",
+                forignField : "subscriber",
+                as : "subscribedTo"
+            }
+        },
+        {
+            $addFields : {
+                subscribersCount : {
+                    $size : "$subscribers"
+                },
+                subscribedToCount :{
+                    $size : "subscribedTo"
+                },
+                isSubscribed  : {
+                    if : {$in : [req.user?._id, "$subscriber.subscriber"]},
+                    then : true,
+                    else : false
+                }
+            }
+        },
+        {
+            $project : {
+                fullname : 1,
+                username : 1,
+                subscriberCount : 1,
+                subscribedToCount : 1,
+                isSubscribed : 1,
+                avatar : 1,
+                coverImage : 1,
+                email : 1
+            }
+        }
+    ])
+    if(!channel?.length){
+        throw new ApiError(404,"channel does not exists")
+    }
+    console.loh(channel)
+    console.log("***********************************")
+    console.log(chanel[0])
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,channel[0],"User channel fetched sucessfully")
+    )
+} )
 
 export {
     registerUser,
