@@ -273,7 +273,7 @@ const updateAvatar = asyncHandler(async(req,res)=>{
      .json(new ApiResponse(200,user,"Avatar changed sucessfully"));
 })
 
-const changeCoverImage = asyncHandler(async(req,res)=>{
+const UpdateCoverImage = asyncHandler(async(req,res)=>{
     const coverImageLocalPath = req.file?.coverImage[0]?.path
 
     if(!coverImageLocalPath){
@@ -428,6 +428,7 @@ export {
     refreshAccessToken,
     changeEmail,
     updateAvatar,
-    changeCoverImage,
-    getUserChannelProfile
+    UpdateCoverImage,
+    getUserChannelProfile,
+    getWatchHistory
 };
