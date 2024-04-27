@@ -15,7 +15,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Discription is required!")
     }
 
-    //create db call
 
     const playlist = await  Playlist.create(
         {
@@ -23,7 +22,16 @@ const createPlaylist = asyncHandler(async (req, res) => {
             description
         }
     )
+     
+    const createdPlaylist = await Playlist.findById(playlist._id);
 
+    if(!createdPlaylist){
+        throw new ApiError(400,"Playlist not created ")
+    }
+
+    return res.status(201).json(
+        new ApiResponse(200,createPlaylist,"playlist created successfully ")
+    )
 })
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
