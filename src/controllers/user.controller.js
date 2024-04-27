@@ -82,7 +82,7 @@ const registerUser = asyncHandler(
         )
 
         if (!createdUser) {
-            throw new ApiError(400, "Something wet wrong while registering user ")
+            throw new ApiError(400, "Something went wrong while registering user ")
         }
 
         return res.status(201).json(
