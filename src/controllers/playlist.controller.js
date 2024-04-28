@@ -76,6 +76,16 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
             }
         }
     ]);
+
+    if(!playlist){
+        throw new ApiError(400, "Playlist not found!")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,playlist,"Playlist fetched sucessfully")
+    )
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
