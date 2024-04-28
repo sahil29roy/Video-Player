@@ -45,12 +45,12 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     const playlist = Playlist.aggregate([
         {
             $match : {
-                owner : mongoose.Types.ObjectId(userId);
+                owner : mongoose.Types.ObjectId(userId)
             }
         },
         {
             $lookup : {
-                from : "playlists",
+                from : "videos",
                 localField : "videos",
                 foreignField : "_id",
                 as : "videos"
