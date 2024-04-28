@@ -58,10 +58,24 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
         },
         {
             $addFields : {
-                
+                totalVideos : {
+                    $size : "$videos"
+                },
+                totalViews : {
+                    $sum : "videos.views"
+                }
+            }
+        },
+        {
+            $project : {
+                name: 1,
+                description: 1,
+                totalVideos: 1,
+                totalViews: 1,
+                updatedAt: 1
             }
         }
-    ])
+    ]);
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
