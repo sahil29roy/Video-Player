@@ -202,7 +202,30 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
       if(playlist.owner?.toString() && video.owner?.toString() !== req.user?._id.toString()){
         throw new ApiError(400, "only owner can add video to their playlist ");
       }
-      
+
+      const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {
+            $addToSet : {
+                videos : videoId,
+            },
+        },
+        { new : true}
+      );
+
+      if (!updatedPlaylist) {
+        throw new ApiError(500, "Error while adding the video to the playlist");
+      }
+
+      return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedPlaylist,
+          "Video added successfully to the playlist"
+        )
+      );
 })
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
