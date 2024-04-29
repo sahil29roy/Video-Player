@@ -24,10 +24,14 @@ const createPlaylist = asyncHandler(async (req, res) => {
         }
     )
 
+    if(!playlist){
+        throw new ApiError(400,"failed to create playlist")
+    }
+
     const createdPlaylist = await Playlist.findById(playlist._id);
 
     if (!createdPlaylist) {
-        throw new ApiError(400, "Playlist not created ")
+        throw new ApiError(400, "Playlist not found ")
     }
 
     return res.status(201).json(
@@ -99,7 +103,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     if (!playlist) {
         throw new ApiError(400, "Playlist does not exist ")
     }
-    const playlistVideo = Playlist.aggregate([
+    const playlistVideos = Playlist.aggregate([
         {
             $match: {
                 _id: new mongoose.Types.ObjectId(playlistId)
@@ -140,11 +144,43 @@ const getPlaylistById = asyncHandler(async (req, res) => {
             }
         },
         {
-
+            $project : {
+                name : 1,
+                description : 1,
+                createdAt : 1,
+                updatedAt : 1,
+                totalVideos : 1,
+                totalViews : 1,
+                videos : {
+                    _id : 1,
+                    "videoFile.url" : 1,
+                    "thumbnail.url": 1,
+                    title : 1,
+                    description :1,
+                    createdAt :1,
+                    duration : 1,
+                    views : 1
+                },
+                owner : {
+                    username : 1,
+                    fullName : 1,
+                    "avatar.url" : 1
+                }
+            }
         }
         
-    ])
-})
+    ]);
+
+    if(!playlistVideos){
+        throw new ApiError(500, "Server error while aggregating playlist videos")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,playlistVideos,"Playlist fetched sucessfully ")
+    )
+});
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
     const { playlistId, videoId } = req.params
