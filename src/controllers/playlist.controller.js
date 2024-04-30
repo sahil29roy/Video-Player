@@ -306,11 +306,50 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
       );
   });
 
-const updatePlaylist = asyncHandler(async (req, res) => {
-    const { playlistId } = req.params
-    const { name, description } = req.body
-    //TODO: update playlist
-})
+
+  const updatePlaylist = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params;
+    const { name, description } = req.body;
+  
+    if (!(name && description)) {
+      throw new ApiError(400, "All fields are required , name and description");
+    }
+  
+    if (!isValidObjectId(playlistId)) {
+      throw new ApiError(400, "Invalid playlist Id");
+    }
+  
+    const playlist = await Playlist.findById(playlistId);
+  
+    if (!playlist) {
+      throw new ApiError(400, "Playlist not found");
+    }
+  
+    if (playlist.owner.toString() !== req.user?._id.toString()) {
+      throw new ApiError(400, "Only owner can edit the playlist");
+    }
+  
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+      playlistId,
+      {
+        $set: {
+          name,
+          description,
+        },
+      },
+      { new: true }
+    );
+  
+    if (!updatedPlaylist) {
+      throw new ApiError(500, "Server error while updating the playlist");
+    }
+  
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedPlaylist, "Playlist updated successfully")
+      );
+  });
 
 export {
     createPlaylist,
