@@ -17,6 +17,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
       if (!isValidObjectId(userId)) {
         throw new ApiError(400, "Invalid User Id");
       }
+      const pipeline =[];
+
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
