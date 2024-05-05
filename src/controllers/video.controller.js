@@ -51,13 +51,16 @@ const publishAVideo = asyncHandler(async (req, res) => {
         duration : videoFile.duration
     });
 
-    if(!updateVideo){
+    if(!uploadVideo){
         throw new ApiError(
             500,"Something went wrong while saving video on database"
         );
     }
 
-})
+    return res
+    .status(200)
+    .json(new ApiResponse(200,uploadVideo,"Video uploaded successfully"));
+});
 
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
