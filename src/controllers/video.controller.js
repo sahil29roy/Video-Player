@@ -18,12 +18,12 @@ const getAllVideos = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid User Id");
       }
       const pipeline =[];
+      //TODO : complete code
 
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body
-    // TODO: get video, upload to cloudinary, create video
     if (!(title && description)) {
         throw new ApiError(
           400,
