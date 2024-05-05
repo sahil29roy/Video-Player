@@ -30,11 +30,23 @@ const publishAVideo = asyncHandler(async (req, res) => {
           "Please provide a valid video title and description"
         );
       }
+
+      const videoLocalPath = req.files?.videoFile[0]?.path;
+      const thumbnailLocalPath = req.files?.videoFile[0]?.path;
+
+      if (!videoLocalPath) {
+        throw new ApiError(400, "Video file is missing");
+      }
+      if (!thumbnailLocalPath) {
+        throw new ApiError(400, "Thumbnail is missing");
+      }
+      
       const videoFile = await uploadOnCloudinary(videoLocalPath);
 
       if(!videoFile){
         throw new ApiError(400,"Video file not uploaded to cloudinary");
       }
+
 
       const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
