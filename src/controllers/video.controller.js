@@ -30,7 +30,17 @@ const publishAVideo = asyncHandler(async (req, res) => {
           "Please provide a valid video title and description"
         );
       }
-      
+      const videoFile = await uploadOnCloudinary(videoLocalPath);
+
+      if(!videoFile){
+        throw new ApiError(400,"Video file not uploaded to cloudinary");
+      }
+
+      const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+
+      if(!thumbnailFile){throw new ApiError(400,"Thumbnail file not uploaded to cloudinary")
+
+
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
