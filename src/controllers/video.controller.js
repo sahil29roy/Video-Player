@@ -17,7 +17,18 @@ const getAllVideos = asyncHandler(async (req, res) => {
       if (!isValidObjectId(userId)) {
         throw new ApiError(400, "Invalid User Id");
       }
-      const pipeline =[];
+      const pipeline = [];
+
+      if(userId){
+        pipeline.push({
+            $match : {
+                owner : new mongoose.Types.ObjectId(userId)
+            }
+        })
+      }
+
+      
+
       //TODO : complete code 
 
 })
@@ -40,7 +51,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
       if (!thumbnailLocalPath) {
         throw new ApiError(400, "Thumbnail is missing");
       }
-      
+
       const videoFile = await uploadOnCloudinary(videoLocalPath);
 
       if(!videoFile){
