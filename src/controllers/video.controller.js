@@ -38,8 +38,24 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
       const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
-      if(!thumbnailFile){throw new ApiError(400,"Thumbnail file not uploaded to cloudinary")
+      if(!thumbnail){
+        throw new ApiError(400,"Thumbnail file not uploaded to cloudinary")
+    }
 
+    const uploadVideo = await Video.create({
+        title,
+        description,
+        videoFile : videoFile.url,
+        thumbnail: thumbnail.url,
+        owner : req.user._id,
+        duration : videoFile.duration
+    });
+
+    if(!updateVideo){
+        throw new ApiError(
+            500,"Something went wrong while saving video on database"
+        );
+    }
 
 })
 
