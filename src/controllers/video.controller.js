@@ -27,7 +27,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
         })
       }
 
-      
+      //TODO : complete push for title
+
+      pipeline.push({
+        $match : {
+          isPublished : true
+        }
+      })
 
       //TODO : complete code 
 
