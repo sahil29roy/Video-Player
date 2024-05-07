@@ -121,7 +121,9 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if(!deletedVideo){
       throw new ApiError(500,"Error in deleting the video");
     }
-    
+    return res
+    .status(200)
+    .json(new ApiResponse(200, deletedVideo,"Video deleted successfullt"))
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
