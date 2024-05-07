@@ -123,7 +123,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     }
     return res
     .status(200)
-    .json(new ApiResponse(200, deletedVideo,"Video deleted successfullt"))
+    .json(new ApiResponse(200, deletedVideo,"Video deleted successfully"))
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
