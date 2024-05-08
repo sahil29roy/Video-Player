@@ -93,7 +93,11 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    //TODO: get video by id
+    if (!isValidObjectId(videoId)) {
+      throw new ApiError(400, "Invalid videoId");
+    }
+    
+    
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
