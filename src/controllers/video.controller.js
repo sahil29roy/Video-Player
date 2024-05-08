@@ -121,6 +121,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if(!deletedVideo){
       throw new ApiError(500,"Error in deleting the video");
     }
+    //TODS : delete from cloudinary 
     return res
     .status(200)
     .json(new ApiResponse(200, deletedVideo,"Video deleted successfully"))
@@ -128,6 +129,23 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
+    if(!videoId){
+      throw new ApiError(404,"Video not found")
+    }
+
+    const togglePublish = await Video.findByIdAndUpdate(
+      videoId ,
+    {  $set: {
+        isPublished : !Video.isPublished,
+      },},
+      {new : true}
+    );
+
+    return res
+    .status(200)
+    .json(
+      new ApiResponse(200,togglePublish,"isPublished is successfully toggled")
+    )
 })
 
 export {
