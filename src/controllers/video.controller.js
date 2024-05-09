@@ -197,10 +197,31 @@ const getVideoById = asyncHandler(async (req, res) => {
           owner: 1,
           likesCount: 1,
           isLiked: 1,
+          commentsCount:1
         }
       }
     ])
-    
+    if (!video) {
+      throw new ApiError(500, "failed to fetch video");
+    }
+      // increment views if video fetched successfully
+      await Video.findByIdAndUpdate(
+        videoId,
+        {
+          $inc : {
+            views : 1,
+        }
+      }
+      )
+
+      await User.findByIdAndUpdate(
+        req.body?._id, 
+        {
+          $addToSet : {
+            watchHistory: videoId
+          }
+        }
+      )
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
