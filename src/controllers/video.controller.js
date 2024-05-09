@@ -1,41 +1,41 @@
-import mongoose, {isValidObjectId} from "mongoose"
-import {Video} from "../models/video.model.js"
-import {User} from "../models/user.model.js"
-import {ApiError} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import mongoose, { isValidObjectId } from "mongoose"
+import { Video } from "../models/video.model.js"
+import { User } from "../models/user.model.js"
+import { ApiError } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
-    //TODO: get all videos based on query, sort, pagination
-    if (!userId) {
-        throw new ApiError(400, "User Id not provided");
+  const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+  //TODO: get all videos based on query, sort, pagination
+  if (!userId) {
+    throw new ApiError(400, "User Id not provided");
+  }
+
+  if (!isValidObjectId(userId)) {
+    throw new ApiError(400, "Invalid User Id");
+  }
+  const pipeline = [];
+
+  if (userId) {
+    pipeline.push({
+      $match: {
+        owner: new mongoose.Types.ObjectId(userId)
       }
-    
-      if (!isValidObjectId(userId)) {
-        throw new ApiError(400, "Invalid User Id");
-      }
-      const pipeline = [];
+    })
+  }
 
-      if(userId){
-        pipeline.push({
-            $match : {
-                owner : new mongoose.Types.ObjectId(userId)
-            }
-        })
-      }
+  //TODO : complete push for title
 
-      //TODO : complete push for title
+  pipeline.push({
+    $match: {
+      isPublished: true
+    }
+  })
 
-      pipeline.push({
-        $match : {
-          isPublished : true
-        }
-      })
-
-      //TODO : complete code 
+  //TODO : complete code 
 
 })
 
@@ -62,16 +62,16 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
   const videoFile = await uploadOnCloudinary(videoLocalPath);
 
-  if(!videoFile ){
+  if (!videoFile) {
     throw new ApiError(500, "Error while uploading videoFile to cloudinary")
   }
-  
+
   const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
-  if(!thumbnail ){
+  if (!thumbnail) {
     throw new ApiError(500, "Error while uploading thumbnail to cloudinary")
   }
-  
+
 
   const uploadVideo = await Video.create({
     title,
@@ -120,11 +120,11 @@ const getVideoById = asyncHandler(async (req, res) => {
       },
     },
     {
-      $lookup : {
-        form : "comments",
-        localfield : "_id",
-        foreignField : "videos",
-        as : "comments"
+      $lookup: {
+        form: "comments",
+        localfield: "_id",
+        foreignField: "videos",
+        as: "comments"
       }
     },
     {
@@ -180,8 +180,8 @@ const getVideoById = asyncHandler(async (req, res) => {
         isLiked: {
           $cond: {
             if: {
-               $in: [req.user?._id, "$likes.likedBy"] 
-              },
+              $in: [req.user?._id, "$likes.likedBy"]
+            },
             then: true,
             else: false,
           },
@@ -246,10 +246,10 @@ const updateVideo = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid video Id");
   }
 
-  const { title, description} = req.body;
+  const { title, description } = req.body;
   const thumbnailLocalPath = req.file?.path;
 
-  if (!title || !description ) {
+  if (!title || !description) {
     throw new ApiError(400, "ALl three fields are required");
   }
   if (!thumbnailLocalPath) {
@@ -259,14 +259,14 @@ const updateVideo = asyncHandler(async (req, res) => {
   const oldVideo = await Video.findById(videoId);
 
   const oldThumbnail = oldVideo.thumbnail;
-  
+
   const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
   if (!thumbnail.url) {
     throw new ApiError(500, "Error while uploading on cloudinary");
   }
 
-//delete OldThumbnail from cloundinary
+  //delete OldThumbnail from cloundinary
 
   const video = await Video.findByIdAndUpdate(
     videoId,
@@ -309,7 +309,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
   if (!deletedVideo) {
     throw new ApiError(500, "Error in  deleting the video");
   }
-//TODO: add delete from cloudinary 
+  //TODO: add delete from cloudinary 
 
   return res
     .status(200)
@@ -355,10 +355,10 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 });
 
 export {
-    getAllVideos,
-    publishAVideo,
-    getVideoById,
-    updateVideo,
-    deleteVideo,
-    togglePublishStatus
+  getAllVideos,
+  publishAVideo,
+  getVideoById,
+  updateVideo,
+  deleteVideo,
+  togglePublishStatus
 }
