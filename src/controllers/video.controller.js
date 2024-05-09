@@ -104,7 +104,30 @@ const getVideoById = asyncHandler(async (req, res) => {
         }
       },
       {
-        
+        $lookup : {
+          form : "likes",
+          localfield : "_id",
+          foreignField : "videos",
+          as : "likes"
+        }
+      },
+      {
+        $lookup : "users",
+        localfield : "owner",
+        forignField : "_id",
+        as : "owner",
+        pipeline : [
+          {
+            $lookup : {
+              from : "subscriptions",
+              localfield : "_id",
+              forignField : "channel",
+              as : "subscribers"
+            }
+          },
+
+          
+        ]
       }
     ])
     
