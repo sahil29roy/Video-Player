@@ -274,29 +274,31 @@ const updateVideo = asyncHandler(async (req, res) => {
 })
 
 const deleteVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    if(!videoId){
-      throw new ApiError(400,"Video Id is not provided");
-    }
-    if(!isValidObjectId(videoId)) {
-  	throw new ApiError(400,"Invalid Video Id");
-    }
+  const { videoId } = req.params;
+  if (!videoId) {
+    throw new ApiError(400, "Video Id is not provided");
+  }
 
-    const video = await Video.findById(videoId);
-    if(!video){
-      throw new ApiError(400,"No video with given id exists ")
-    }
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid Video Id");
+  }
 
-    const deletedVideo = await Video.findByIdAndDelete(video);
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(400, "No video with given id exists.");
+  }
 
-    if(!deletedVideo){
-      throw new ApiError(500,"Error in deleting the video");
-    }
-    //TODS : delete from cloudinary 
-    return res
+  const deletedVideo = await Video.findByIdAndDelete(video);
+  if (!deletedVideo) {
+    throw new ApiError(500, "Error in  deleting the video");
+  }
+//TODO: add delete from cloudinary 
+
+  return res
     .status(200)
-    .json(new ApiResponse(200, deletedVideo,"Video deleted successfully"))
-})
+    .json(new ApiResponse(200, deletedVideo, "Video deleted successfully"));
+});
+
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
