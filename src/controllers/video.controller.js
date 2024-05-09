@@ -229,49 +229,57 @@ const getVideoById = asyncHandler(async (req, res) => {
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
+  const { videoId } = req.params;
+  if (!videoId) {
+    throw new ApiError(400, "Video Id not provided");
+  }
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid video Id");
+  }
+
+  const { title, description} = req.body;
+  const thumbnailLocalPath = req.file?.path;
+
+  if (!title || !description ) {
+    throw new ApiError(400, "ALl three fields are required");
+  }
+  if (!thumbnailLocalPath) {
+    throw new ApiError(400, "Thumbnail is not missing");
+  }
+
+  const oldVideo = await Video.findById(videoId);
+
+  const oldThumbnail = oldVideo.thumbnail;
   
-    if(!videoId){
-      throw new ApiError(400, "Video Id not provided");
-    }
-    if (!isValidObjectId(videoId)) {
-      throw new ApiError(400, "Invalid video Id");
-    }
-     const { title, description } = req.body;
-     if (!title || !description ) {
-      throw new ApiError(400, "ALl fields are required");
-    }
-    const thumbnailLocalPath =  req.file?.path;
+  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
-    if(!thumbnailLocalPath){
-      throw new ApiError(400, " thumbnail is missing ");
-    }
+  if (!thumbnail.url) {
+    throw new ApiError(500, "Error while uploading on cloudinary");
+  }
 
-    const oldVideo = await await Video.findById(videoId);
+//delete OldThumbnail from cloundinary
 
-    if(!oldVideo){
-      throw new ApiError(404,"Old Video not found");
-    }
-    //TODO : delete thumbnail url from cloudinary
-
-    const thumbnail = await Video.findByIdAndUpdate(
-      videoId,
-      {
-        $set : {
-          title , 
-          description,
-          thumbnail : thumbnail.url
-        }
+  const video = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $set: {
+        title,
+        description,
+        thumbnail: thumbnail.url,
       },
-      {new : true}
-    );
-    if (!video) {
-      throw new ApiError(500, "Video not found after updating the details");
-    }
-    return res
+    },
+    { new: true }
+  );
+
+  if (!video) {
+    throw new ApiError(500, "Video not found after updating the details");
+  }
+
+  return res
     .status(200)
     .json(new ApiResponse(200, video, "Video updated successfully"));
-})
+});
+
 
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
