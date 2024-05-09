@@ -299,25 +299,41 @@ const deleteVideo = asyncHandler(async (req, res) => {
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    if(!videoId){
-      throw new ApiError(404,"Video not found")
-    }
+  const { videoId } = req.params;
 
-    const togglePublish = await Video.findByIdAndUpdate(
-      videoId ,
-    {  $set: {
-        isPublished : !Video.isPublished,
-      },},
-      {new : true}
-    );
+  if (!videoId) {
+    throw new ApiError(400, "Video Id is not provided");
+  }
 
-    return res
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid Video Id");
+  }
+
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(404, "Video not found");
+  }
+
+  const togglePublish = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $set: {
+        isPublished: !video.isPublished,
+      },
+    },
+    { new: true }
+  );
+
+  if (!togglePublish) {
+    throw new ApiError(500, "Unable to toggle the published section");
+  }
+
+  return res
     .status(200)
     .json(
-      new ApiResponse(200,togglePublish,"isPublished is successfully toggled")
-    )
-})
+      new ApiResponse(200, togglePublish, "isPublished is successfully toggled")
+    );
+});
 
 export {
     getAllVideos,
