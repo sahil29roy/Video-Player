@@ -136,10 +136,18 @@ const getVideoById = asyncHandler(async (req, res) => {
                     $in : [req.user?._id,"$subscribers.subscriber"]
                   },
                   then : true,
-                  else : false
-                }
-              }
+                  else : false,
+                },
+              },
             }
+          },
+            {
+              $project : {
+                username : 1,
+                "avatar.url": 1,
+                subscribersCount: 1,
+                isSubscribed: 1,
+              }
           }
         ]
       }
