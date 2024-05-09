@@ -39,56 +39,59 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 })
 
+
 const publishAVideo = asyncHandler(async (req, res) => {
-    const { title, description} = req.body
-    if (!(title && description)) {
-        throw new ApiError(
-          400,
-          "Please provide a valid video title and description"
-        );
-      }
+  const { title, description } = req.body;
 
-      const videoLocalPath = req.files?.videoFile[0]?.path;
-      const thumbnailLocalPath = req.files?.videoFile[0]?.path;
+  if (!(title && description)) {
+    throw new ApiError(
+      400,
+      "Please provide a valid video title and description"
+    );
+  }
 
-      if (!videoLocalPath) {
-        throw new ApiError(400, "Video file is missing");
-      }
-      if (!thumbnailLocalPath) {
-        throw new ApiError(400, "Thumbnail is missing");
-      }
+  const videoLocalPath = req.files?.videoFile[0]?.path;
+  const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
 
-      const videoFile = await uploadOnCloudinary(videoLocalPath);
+  if (!videoLocalPath) {
+    throw new ApiError(400, "Video file is missing");
+  }
+  if (!thumbnailLocalPath) {
+    throw new ApiError(400, "Thumbnail is missing");
+  }
 
-      if(!videoFile){
-        throw new ApiError(400,"Video file not uploaded to cloudinary");
-      }
+  const videoFile = await uploadOnCloudinary(videoLocalPath);
 
+  if(!videoFile ){
+    throw new ApiError(500, "Error while uploading videoFile to cloudinary")
+  }
+  
+  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
-      const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+  if(!thumbnail ){
+    throw new ApiError(500, "Error while uploading thumbnail to cloudinary")
+  }
+  
 
-      if(!thumbnail){
-        throw new ApiError(400,"Thumbnail file not uploaded to cloudinary")
-    }
+  const uploadVideo = await Video.create({
+    title,
+    description,
+    videoFile: videoFile.url,
+    thumbnail: thumbnail.url,
+    owner: req.user?._id,
+    duration: videoFile.duration,
+  });
 
-    const uploadVideo = await Video.create({
-        title,
-        description,
-        videoFile : videoFile.url,
-        thumbnail: thumbnail.url,
-        owner : req.user._id,
-        duration : videoFile.duration
-    });
+  if (!uploadVideo) {
+    throw new ApiError(
+      500,
+      "Something went wrong while saving the video to database"
+    );
+  }
 
-    if(!uploadVideo){
-        throw new ApiError(
-            500,"Something went wrong while saving video on database"
-        );
-    }
-
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200,uploadVideo,"Video uploaded successfully"));
+    .json(new ApiResponse(200, uploadVideo, "Video uploaded successfully"));
 });
 
 
