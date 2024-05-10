@@ -9,6 +9,12 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const toggleSubscription = asyncHandler(async (req, res) => {
     const {channelId} = req.params
     // TODO: toggle subscription
+    if(!channelId){
+        throw new ApiError(404,"Channel not found");
+    }
+    if(!isValidObjectId(channelId)){
+        throw new ApiError(400,"Invalid channel id");
+    }
 })
 
 // controller to return subscriber list of a channel
