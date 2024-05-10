@@ -34,6 +34,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
               "Unsubscribed successfully"
             )
           );
+        }
 })
 
 // controller to return subscriber list of a channel
