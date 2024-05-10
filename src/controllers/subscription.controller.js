@@ -15,6 +15,25 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     if(!isValidObjectId(channelId)){
         throw new ApiError(400,"Invalid channel id");
     }
+    const isSubscribed = await Subscription.findOne(
+        {
+            subscriber : req.user?._id,
+            channel : channelId
+        }
+    )
+    if (isSubscribed) {
+        // Unsubscribe user to the channel
+        await Subscription.findByIdAndDelete(isSubscribed._id);
+    
+        return res
+          .status(200)
+          .json(
+            new ApiResponse(
+              200,
+              { isSubscribed: false },
+              "Unsubscribed successfully"
+            )
+          );
 })
 
 // controller to return subscriber list of a channel
