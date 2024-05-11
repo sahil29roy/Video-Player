@@ -122,7 +122,9 @@ const toggleSubscription = asyncHandler(async (req, res) => {
             },
           },
         ]);
-      
+        if(!subscriberList){
+            throw new ApiError(500,"Failed to find subscriber")
+        }
         return res
           .status(200)
           .json(
@@ -130,7 +132,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
           );
       });
 
-// controller to return channel list to which user has subscribed
+
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params
 })
