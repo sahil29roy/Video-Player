@@ -139,6 +139,10 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     if (!isValidObjectId(subscriberId)) {
       throw new ApiError(400, "Invalid subscriber Id");
     }
+
+    const subscribedChannels = await Subscription.aggregate([
+        
+    ])
 })
 
 export {
