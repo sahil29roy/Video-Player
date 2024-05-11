@@ -76,7 +76,21 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
                 forignField : "_id",
                 as : "subscriber",
                 pipeline : [
-                    //TODO : add pipelines for user -> subscriber
+                    {
+                        $lookup : {
+                            from : "subscriptions",
+                            localField : "_id",
+                            forignField : "channel",
+                            as : "subscribedToSubscriber",
+                        }
+                    },
+                    {
+                        $addFields : {
+                            subscriberCount : {
+                                $size : "subscriberToSubscriber.subscriber"
+                            }
+                        }
+                    }
                 ]
             }
         }
