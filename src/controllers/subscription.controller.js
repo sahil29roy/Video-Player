@@ -24,7 +24,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     if (isSubscribed) {
         // Unsubscribe user to the channel
         await Subscription.findByIdAndDelete(isSubscribed._id);
-    
+        //return
         return res
           .status(200)
           .json(
@@ -35,6 +35,22 @@ const toggleSubscription = asyncHandler(async (req, res) => {
             )
           );
         }
+
+        const subscribing = await Subscription.create(
+            {
+                subscriber : req.user?._id,
+                channel : channelId,
+            }
+        );
+
+        if(!subscribing){
+            throw new ApiError(500, "Server error while subscribing");
+        }
+        return res
+        .status(200)
+        .json(
+          new ApiResponse(200, { isSubscribed: true }, "Subscribed successfully")
+        );
 })
 
 // controller to return subscriber list of a channel
