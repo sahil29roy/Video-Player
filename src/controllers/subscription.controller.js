@@ -179,8 +179,26 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                   },
                 ]
             }
+        },
+        {
+          $unwind: "$channel",
+        },
+        {
+          $project : {
+            _id: 0,
+        subscriber: {
+          _id: 1,
+          username: 1,
+          fullName: 1,
+          "avatar.url": 1,
+          subscribedToChannelr: 1,
+          subscriptionCount: 1,
+        },
+          }
         }
-    ])
+    ]);
+
+    
 })
 
 export {
