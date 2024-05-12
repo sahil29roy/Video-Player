@@ -152,6 +152,32 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                 localField: "channel",
                 foreignField: "_id",
                 as: "subscribedChannel",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "subscriptions",
+                      localField: "_id",
+                      foreignField: "subscriber",
+                      as: "subscribedToChannel",
+                    },
+                  },
+                  {
+                    $addFields: {
+                      subscribedToChannel: {
+                        $cond: {
+                          if: {
+                            $in: [channelId, "$subscribedToChannel.subscriber"],
+                          },
+                          then: true,
+                          else: false,
+                        },
+                      },
+                      subscriptionCount: {
+                        $size: "$subscribedToChannel",
+                      },
+                    },
+                  },
+                ]
             }
         }
     ])
