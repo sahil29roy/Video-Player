@@ -185,8 +185,8 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         },
         {
           $project : {
-            _id: 0,
-        subscriber: {
+          _id: 0,
+          channel: {
           _id: 1,
           username: 1,
           fullName: 1,
@@ -197,8 +197,18 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
           }
         }
     ]);
-
-    
+    if (!subscribedChannels) {
+      throw new error(500, "Server error while fetching subscribed channels");
+  }
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(
+      200,
+      channel,
+      "Subscribed channels fetched successfully"
+    )
+  );
 })
 
 export {
