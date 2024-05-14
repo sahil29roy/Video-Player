@@ -128,3 +128,5 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, likeTweet, "Tweet liked successfully"));
   });
   
+
+  export { toggleCommentLike, toggleTweetLike, toggleVideoLike };
