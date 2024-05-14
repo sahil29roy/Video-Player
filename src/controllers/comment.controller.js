@@ -76,3 +76,36 @@ const updateComment = asyncHandler(async (req, res) => {
             )
         );
 });
+
+
+
+const deleteComment = asyncHandler(async (req, res) => {
+    const { commentId } = req.params;
+
+    if (!isValidObjectId(commentId)) {
+        throw new ApiError(400, "Invalid comment ID");
+    }
+
+    const getComment = await Comment.findById(commentId);
+
+    if (!getComment) {
+        throw new ApiError(400, "Comment does not exist")
+    }
+
+    if (getComment?.owner.toString() !== req.user?._id.toString()) {
+        throw new ApiError(400, "User is not the owner of this comment");
+    }
+
+    const deletedComment = await Comment.findByIdAndDelete(commentId);
+
+    if (!deletedComment) {
+        throw new ApiError(500, "Unable to delete the comment");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, deletedComment, "Comment deleted Successfully"));
+});
+
+export { addComment, updateComment, deleteComment };
+
