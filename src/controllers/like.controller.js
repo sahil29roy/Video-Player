@@ -4,28 +4,44 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const toggleVideoLikes =  asyncHandler(async (req,res) =>{
 
-    const {videoId} =  req.params;
-
+const toggleVideoLike = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+  
     if (!isValidObjectId(videoId)) {
-        throw new ApiError(400, "Invalid Video Id");
-      }
-
+      throw new ApiError(400, "Invalid Video Id");
+    }
+  
     const alreadyLiked = await Like.findOne({
-        video : videoId,
-        likedBy : req.user?._id
-    })
-    if(alreadyLiked){
-        await Like.findByIdAndDelete(alreadyLiked?._id);
-        return res
+      video: videoId,
+      likedBy: req.user?._id,
+    });
+  
+    if (alreadyLiked) {
+      await Like.findByIdAndDelete(alreadyLiked._id);
+  
+      return res
         .status(200)
         .json(
-            new ApiResponse(
-                200,
-                {isLiked : false},
-                "video like removed sucessfully "
-            )
+          new ApiResponse(
+            200,
+            { isLiked: false },
+            "Video like removed successfully"
+          )
         );
     }
-})
+  
+    const likeVideo = await Like.create({
+      video: videoId,
+      likedBy: req.user?._id,
+    });
+  
+    if (!likeVideo) {
+      throw new ApiError(500, "Server error while liking the video");
+    }
+  
+    return res
+      .status(200)
+      .json(new ApiResponse(200, likeVideo, "Video liked successfully"));
+  });
+  
