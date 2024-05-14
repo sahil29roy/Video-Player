@@ -21,7 +21,7 @@ const addComment = asyncHandler(async (req, res) => {
     const uploadComment = await Comment.create({
         content,
         video: videoId,
-        owner: req.user?._id
+        owner: req.user?._id,
     });
 
     if (!uploadComment) {
@@ -31,7 +31,8 @@ const addComment = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(new ApiResponse(200, uploadComment, "Comment added successfully"));
-})
+});
+
 
 
 const updateComment = asyncHandler(async (req, res) => {
@@ -39,39 +40,39 @@ const updateComment = asyncHandler(async (req, res) => {
     const { content } = req.body;
 
     if (!isValidObjectId(commentId)) {
-      throw new ApiError(400, "Comment id is not valid");
-  }
+        throw new ApiError(400, "Invalid Video ID");
+    }
+    if (!content) {
+        throw new ApiError(400, "No comment provided");
+    }
 
-  if (!content) {
-      throw new ApiError(400, "Content not provided");
-  }
+    const getComment = await Comment.findById(commentId);
 
-  const getComment = await Comment.findById(commentId);
+    if (req.user?._id.toString() !== getComment?.owner.toString()) {
+        throw new ApiError(400, "User is not the owner of this comment");
+    }
 
-  if(reqq.user?._id.toString() !== getComment?.owner.toString()){
-    throw new ApiError(400, "User is not the owner of this comment");
-  }
+    const uploadComment = await Comment.findByIdAndUpdate(
+        commentId,
+        {
+            $set: {
+                content: content,
+            },
+        },
+        { new: true }
+    );
 
-  const uploadComment = await Comment.findByIdAndUpdate(
-    commentId,
-    {
-      $set: {
-        content: content,
-      },
-    },
-    { new: true }
-  );
-  if (!uploadComment) {
-    throw new ApiError(500, "Failed to update comment");
-  }
+    if (!uploadComment) {
+        throw new ApiError(500, "Failed to update comment");
+    }
 
-  return res
-  .status(200)
-  .json(
-    new ApiResponse(
-      200,
-      uploadComment,
-      "Comment has been updated Successfully"
-    )
-  );
-})
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                uploadComment,
+                "Comment has been updated Successfully"
+            )
+        );
+});
