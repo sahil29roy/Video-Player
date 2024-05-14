@@ -45,3 +45,44 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, likeVideo, "Video liked successfully"));
   });
   
+  
+const toggleCommentLike = asyncHandler(async (req, res) => {
+    const { commentId } = req.params;
+  
+    if (!isValidObjectId(commentId)) {
+      throw new ApiError(400, "Invalid Comment Id");
+    }
+  
+    const alreadyLiked = await Like.findOne({
+      comment: commentId,
+      likedBy: req.user?._id, 
+    });
+  
+    if (alreadyLiked) {
+      await Like.findByIdAndDelete(alreadyLiked._id);
+  
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            { isLiked: false },
+            "Comment like removed successfully"
+          )
+        );
+    }
+  
+    const likeComment = await Like.create({
+      comment: commentId,
+      likedBy: req.user?._id,
+    });
+  
+    if (!likeComment) {
+      throw new ApiError(500, "Server error while liking the comment");
+    }
+  
+    return res
+      .status(200)
+      .json(new ApiResponse(200, likeComment, "Comment liked successfully"));
+  });
+  
