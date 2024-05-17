@@ -64,5 +64,7 @@ const createTweet = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Error while uploading tweet");
     }
   
-    
+    return res
+    .status(200)
+    .json(new ApiResponse(200, updatedTweet, "Tweet updated successfully"));
   });
