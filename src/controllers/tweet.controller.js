@@ -93,6 +93,8 @@ const deleteTweet = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Server error while deleting the tweet");
   }
 
-
+  return res
+  .status(200)
+  .json(new ApiResponse(200, deletedTweet, "Tweet deleted successfully"));
 });
 
