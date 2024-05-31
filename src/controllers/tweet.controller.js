@@ -92,7 +92,13 @@ const getUserTweets = asyncHandler(async (req, res) => {
     },
   ]);
 
-  
+  if (!allTweets) {
+    throw new ApiError(500, "Error while getting all tweets");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, allTweets, "All tweets fetched successfully"));
 });
 
 
